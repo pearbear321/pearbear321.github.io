@@ -109,7 +109,7 @@ function searchForHeirloom(event){
 	
 	for (let i = 0; i < 5; i++) {
 		if (highUniverse == 1){
-			for (let j = Math.floor(low/100); 100*(j+1) < high && j <= maxSpire; j++) spireHeirloom(j)
+			for (let j = Math.floor(low/100) - 1; 100*(j+1) < high && j <= maxSpire; j++) spireHeirloom(j)
 		}
 		game.global.universe = highUniverse;
 		heirloom = findNextHeirloom(high, rarity);
