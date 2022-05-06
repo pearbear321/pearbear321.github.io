@@ -100,8 +100,9 @@ function searchForHeirloom(event){
 	
 	
 	game.global.universe  = lowUniverse
+	let j = game.global.lastSpireCleared + 1
 	if (lowUniverse == 1){
-		for (let j = game.global.lastSpireCleared + 1; 100*(j+1) < low && j <= maxSpire; j++) spireHeirloom(j)
+		for (; 100*(j+1) < low && j <= maxSpire; j++) spireHeirloom(j)
 	}
 	
 	let tempSeed = game.global.heirloomSeed
@@ -109,7 +110,7 @@ function searchForHeirloom(event){
 	let count = 0;
 	for (let i = 0; i < 100 && count < 5; i++) {
 		if (highUniverse == 1){
-			for (let j = Math.floor(low/100) - 1; 100*(j+1) < high && j <= maxSpire; j++) spireHeirloom(j)
+			for (; 100*(j+1) < high && j <= maxSpire; j++) spireHeirloom(j)
 		}
 		game.global.universe = highUniverse;
 		heirloom = findNextHeirloom(high, rarity, 5);
