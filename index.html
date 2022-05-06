@@ -6,10 +6,11 @@
 <body>
 <p> Heirloom Finder </p>
 <p> This tool will help you find good heirlooms, it will probably be most useful during stages where you're trying to find good heirlooms of the next higher rarity than the ones you have. </p>
+<p> For example, if you can do voids at 230+, but normally do them at 215 because of the challenge that ends there; you put 215 in the first box and 230 in the second one. Then hit the search for heirlooms button and it will tell you how many voids to do at 215 followed by more how many more at 230 to get the maximum rarity available at 230.</p>
 <span>  
 	Import save: <input type="text" id="saveInput" title="Paste save here"/><br>
 	<label for="spireChoice">Highest spire you'll clear cell 70:</label>
-		<select name="spire" id="spireChoice" title="Spires drop an heirloom at cell 70" onchange="setMaxSpire(this.value);">
+		<select name="spire" id="spireChoice" title="Spires drop an heirloom at cell 70, if either zone entered in the other boxes is a spire zone, it is assume that voids on that zone are done before cell 70" onchange="setMaxSpire(this.value);">
 			<option value="0">None</option>
 			<option value="1">Spire (z200)</option>
 			<option value="2">Spire II (z300)</option>
