@@ -106,20 +106,19 @@ function searchForHeirloom(event){
 	
 	let tempSeed = game.global.heirloomSeed
 	
-	
-	for (let i = 0; i < 5; i++) {
+	let count = 0;
+	for (let i = 0; i < 100 && count < 5; i++) {
 		if (highUniverse == 1){
 			for (let j = Math.floor(low/100) - 1; 100*(j+1) < high && j <= maxSpire; j++) spireHeirloom(j)
 		}
 		game.global.universe = highUniverse;
-		heirloom = findNextHeirloom(high, rarity);
+		heirloom = findNextHeirloom(high, rarity, 5);
 		
-		if (heirloom)
-			document.getElementById('heirloom'+i).innerText = "Low: " + i + " High: " + heirloom.ahead + "\n" + heirloomToString(heirloom);
-		else {
-			document.getElementById('heirloom'+i).innerText = "Could not find max rarity heirloom looking 100 ahead";
-			return;
+		if (heirloom){
+			document.getElementById('heirloom'+count).innerText = "Low: " + i + " High: " + heirloom.ahead + "\n" + heirloomToString(heirloom);
+			count++;
 		}
+		
 		
 		game.global.heirloomSeed = tempSeed
 		game.global.universe = lowUniverse;
@@ -137,13 +136,13 @@ function heirloomToString(heirloom){
 	return text
 }
 
-function findNextHeirloom(zone, rarity){
+function findNextHeirloom(zone, rarity, limit){
 	let heirloom;
-	for (let i = 0; i < 100; i++) {
+	for (let i = 1; i < limit; i++) {
 		createHeirloom(zone);
 		heirloom = game.global.heirloomsExtra[game.global.heirloomsExtra.length-1];
 		if (heirloom.rarity == rarity) {
-			heirloom.ahead = i+1;
+			heirloom.ahead = i;
 			return heirloom;	
 		}
 	}
@@ -165,7 +164,7 @@ function nextFiveMaxHeirlooms(event){
 	let count = 0;
 	
 	for (let i = 0; i < 5; i++) {
-		heirloom = findNextHeirloom(high, rarity);
+		heirloom = findNextHeirloom(high, rarity, 100);
 		
 		if (heirloom){
 			count += heirloom.ahead
