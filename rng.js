@@ -99,6 +99,7 @@ function searchForHeirloom(event){
 	game.global.heirloomSeed = save.global.heirloomSeed;
 	
 	
+	game.global.universe  = lowUniverse
 	if (lowUniverse == 1){
 		for (let j = game.global.lastSpireCleared + 1; 100*(j+1) < low && j <= maxSpire; j++) spireHeirloom(j)
 	}
