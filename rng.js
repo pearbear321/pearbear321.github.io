@@ -129,11 +129,25 @@ function searchForHeirloom(event){
 	}
 }
 
+function modToString(mod) {
+    modString = mod[1] + "% ";
+    for (i in mod[0]) {
+        if (i == 0) {
+            modString += mod[0][i].toUpperCase();
+        } else {
+            if (mod[0][i] == mod[0][i].toUpperCase()) {
+                modString += " ";
+            }
+            modString += mod[0][i];
+        }
+    }
+    return modString;
+}
 
 function heirloomToString(heirloom){
 	let text = ""
 	text += heirloom.name + "\n"
-	for (let i = 0; i < heirloom.mods.length; i++) text += heirloom.mods[i][0] + "\n"	
+	for (let i = 0; i < heirloom.mods.length; i++) text += modToString(heirloom.mods[i]) + "\n"	
 	return text
 }
 
