@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-
+	<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <p> Heirloom Finder </p>
@@ -43,13 +43,14 @@
 	<button type="button" id="heirloomSearchButton" title="Search for highest rarity heirlooms at max rarity zone after advancing RNG at a lower zone.">
 							Search for heirlooms</button>
 </span>
-	
-	<script>
-                for (var i = 0; i <5; i++) {
-                    document.write('<p id ="heirloom' + i +'" ></p>');
-                }
-        </script> 
-
+	<div class="flex-container"> 
+		<script>
+                
+			for (var i = 0; i <5; i++) {
+                    		document.write('<p id ="heirloom' + i +'" ></p>');
+                	}
+        	</script> 
+	</div>
 	
 </body>
 
