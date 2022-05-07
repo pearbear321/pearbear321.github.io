@@ -105,6 +105,7 @@ function searchForHeirloom(event){
 		for (; 100*(j+1) < low && j <= maxSpire; j++) spireHeirloom(j)
 	}
 	
+	let tempj = j
 	let tempSeed = game.global.heirloomSeed
 	
 	let count = 0;
@@ -120,12 +121,11 @@ function searchForHeirloom(event){
 			count++;
 		}
 		
-		
 		game.global.heirloomSeed = tempSeed
 		game.global.universe = lowUniverse;
 		createHeirloom(low)
 		tempSeed = game.global.heirloomSeed
-		
+		j = tempj
 	}
 }
 
