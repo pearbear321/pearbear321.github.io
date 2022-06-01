@@ -3,6 +3,7 @@ var game = newGame();
 var lowUniverse = 1;
 var highUniverse = 1;
 var maxSpire = 0;
+var badMods = [];
 
 // only thing from spire assault that gets used
 var autoBattle = {oneTimers: {Nullicious: {owned: false}}}
@@ -14,6 +15,10 @@ var heirloomsShown = false;
 // Input for save
 document.getElementById("saveInput").addEventListener("paste", (event) => {
 	onSavePaste(event);
+});
+
+document.getElementById("highZoneText").addEventListener("change", (event) => {
+	buildModsDropChecks();	
 });
 
 
@@ -33,6 +38,11 @@ document.getElementById("highNextFiveButton").addEventListener("click", (event) 
 document.getElementById("highNextFiveMaxButton").addEventListener("click", (event) => {
 	nextFiveMaxHeirlooms(event);	
 });
+
+document.getElementById("filter").addEventListener("change", (event) => {
+	showFilter(event);	
+});
+
 
 function onSavePaste(event) {
 	let paste = event.clipboardData.getData("text");
@@ -74,12 +84,11 @@ function onSavePaste(event) {
 
 function setLowUniverse(ele){
         lowUniverse = parseInt(ele.value)
-	console.log(lowUniverse);
 }
 
 function setHighUniverse(ele){
         highUniverse = parseInt(ele.value)
-	console.log(highUniverse);
+		buildModsDropChecks()
 }
 
 function setMaxSpire(value){
@@ -87,6 +96,7 @@ function setMaxSpire(value){
 }
 
 function searchForHeirloom(event){
+	
 	let low = parseInt(document.getElementById("lowZoneText").value);
 	let high = parseInt(document.getElementById("highZoneText").value);
 	
@@ -109,12 +119,12 @@ function searchForHeirloom(event){
 	let tempSeed = game.global.heirloomSeed
 	
 	let count = 0;
-	for (let i = 0; i < 100 && count < 5; i++) {
+	for (let i = 0; i < 1000 && count < 5; i++) {
 		if (highUniverse == 1){
 			for (; 100*(j+1) < high && j <= maxSpire; j++) spireHeirloom(j)
 		}
 		game.global.universe = highUniverse;
-		heirloom = findNextHeirloom(high, rarity, 5);
+		heirloom = findNextHeirloom(high, rarity, 30, true);
 		
 		if (heirloom){
 			document.getElementById('heirloom'+count).innerText = "Low: " + i + " High: " + heirloom.ahead + "\n" + heirloomToString(heirloom);
@@ -151,19 +161,78 @@ function heirloomToString(heirloom){
 	return text
 }
 
-function findNextHeirloom(zone, rarity, limit){
+function findNextHeirloom(zone, rarity, limit, filter){
 	let heirloom;
 	for (let i = 1; i < limit; i++) {
 		createHeirloom(zone);
 		heirloom = game.global.heirloomsExtra[game.global.heirloomsExtra.length-1];
-		if (heirloom.rarity == rarity) {
-			heirloom.ahead = i;
-			return heirloom;	
-		}
+		if (heirloom.rarity == rarity)
+			if (filter && applyFilter(heirloom)) {
+				heirloom.ahead = i;
+				return heirloom;	
+			}
+	}
+	return false;
+}
+
+function showFilter(event) {
+	if (document.getElementById("filter").checked)
+		document.getElementById("dropdowns").removeAttribute("hidden")
+	else
+		document.getElementById("dropdowns").setAttribute("hidden", true)
+	
+}
+
+function buildModsDropChecks() {
+	badMods = [];
+	//find max rarity 
+	let high = parseInt(document.getElementById("highZoneText").value);
+	ele = document.getElementsByName("high");
+    highUniverse = ele[0].checked ? 1 : 2;
+	game.global.universe = highUniverse;
+	game.global.heirloomSeed = save.global.heirloomSeed;
+	let rarity = getHeirloomRarityRanges(high).length-1;
+	
+	//get list of eligible mods
+	var type = document.getElementById("type").value
+	var eligible = [];
+	for (var item in game.heirlooms[type]){
+		var heirloom = game.heirlooms[type][item];
+		if (item == "empty") continue;
+		if (typeof heirloom.filter !== 'undefined' && !heirloom.filter()) continue;
+		if (heirloom.steps && heirloom.steps[rarity] === -1) continue;
+		eligible.push(item);
+	}
+	
+	
+	console.log(eligible);
+	
+	var ele = document.getElementById("modifiers")
+	ele.innerHTML = ""
+	for (let i = 0; i < eligible.length; i++){
+		ele.innerHTML += '<input type="checkbox" id=checkbox' + i + ' onclick="updateBadMods(this)" value="' + eligible[i] + '">' + eligible[i] +'&nbsp;'
+		
 	}
 }
-	
+
+function updateBadMods(ele){
+	if(ele.checked) badMods.push(ele.value)
+	else badMods = badMods.filter(e => e != ele.value)
+	console.log(badMods);
+}
+
+function applyFilter(heirloom) {
+		if (heirloom.type != document.getElementById("type").value) return false;
+		
+		for (let i = 0; i < heirloom.mods.length; i++)
+			for (let j = 0; j < badMods.length; j++)
+				if (heirloom.mods[i][0] == badMods[j]) return false;
+			
+		return true
+}
+
 function nextFiveMaxHeirlooms(event){
+	
 	let high = parseInt(document.getElementById("highZoneText").value);
 	var ele = document.getElementsByName("high");
         highUniverse = ele[0].checked ? 1 : 2;
@@ -179,7 +248,7 @@ function nextFiveMaxHeirlooms(event){
 	let count = 0;
 	
 	for (let i = 0; i < 5; i++) {
-		heirloom = findNextHeirloom(high, rarity, 100);
+		heirloom = findNextHeirloom(high, rarity, 100, true);
 		
 		if (heirloom){
 			count += heirloom.ahead

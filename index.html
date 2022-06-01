@@ -40,6 +40,18 @@
 							Next 5 Max Rarity Here</button><br><br>
 	<button type="button" id="heirloomSearchButton" title="Search for highest rarity heirlooms at max rarity zone after advancing RNG at a lower zone.">
 							Search for heirlooms</button>
+	<input type="checkbox" id="filter">Apply Filter &ensp;
+	<span id="dropdowns" hidden>
+		Type
+		<select id="type" onchange="buildModsDropChecks()">
+			<option value="Shield">Shield</option>
+			<option value="Staff">Staff</option>
+		</select>
+		Must not have these modifiers
+		<span id="modifiers" title="Because empty slots can be used to add modifiers, it makes more sense to think of heirlooms in terms of what modifiers they don't have, rather than the ones they do.">
+		</span>
+
+	</span>
 </span>
 	<div class="flex-container"> 
 		<script>
@@ -49,7 +61,6 @@
                 	}
         	</script> 
 	</div>
-	
 </body>
 
 	<script src="config.js"></script>
