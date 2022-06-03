@@ -4,6 +4,7 @@ var lowUniverse = 1;
 var highUniverse = 1;
 var maxSpire = 0;
 var badMods = [];
+var filter = false;
 
 // only thing from spire assault that gets used
 var autoBattle = {oneTimers: {Nullicious: {owned: false}}}
@@ -124,7 +125,7 @@ function searchForHeirloom(event){
 			for (; 100*(j+1) < high && j <= maxSpire; j++) spireHeirloom(j)
 		}
 		game.global.universe = highUniverse;
-		heirloom = findNextHeirloom(high, rarity, 30, true);
+		heirloom = findNextHeirloom(high, rarity, 30);
 		
 		if (heirloom){
 			document.getElementById('heirloom'+count).innerText = "Low: " + i + " High: " + heirloom.ahead + "\n" + heirloomToString(heirloom);
@@ -161,13 +162,13 @@ function heirloomToString(heirloom){
 	return text
 }
 
-function findNextHeirloom(zone, rarity, limit, filter){
+function findNextHeirloom(zone, rarity, limit){
 	let heirloom;
 	for (let i = 1; i < limit; i++) {
 		createHeirloom(zone);
 		heirloom = game.global.heirloomsExtra[game.global.heirloomsExtra.length-1];
 		if (heirloom.rarity == rarity)
-			if (filter && applyFilter(heirloom)) {
+			if (applyFilter(heirloom)) {
 				heirloom.ahead = i;
 				return heirloom;	
 			}
@@ -176,7 +177,8 @@ function findNextHeirloom(zone, rarity, limit, filter){
 }
 
 function showFilter(event) {
-	if (document.getElementById("filter").checked)
+	filter = !!document.getElementById("filter").checked
+	if (filter)
 		document.getElementById("dropdowns").removeAttribute("hidden")
 	else
 		document.getElementById("dropdowns").setAttribute("hidden", true)
@@ -222,6 +224,7 @@ function updateBadMods(ele){
 }
 
 function applyFilter(heirloom) {
+		if (!filter) return true;
 		if (heirloom.type != document.getElementById("type").value) return false;
 		
 		for (let i = 0; i < heirloom.mods.length; i++)
@@ -248,7 +251,7 @@ function nextFiveMaxHeirlooms(event){
 	let count = 0;
 	
 	for (let i = 0; i < 5; i++) {
-		heirloom = findNextHeirloom(high, rarity, 100, true);
+		heirloom = findNextHeirloom(high, rarity, 100);
 		
 		if (heirloom){
 			count += heirloom.ahead
