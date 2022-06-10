@@ -52,8 +52,8 @@ function onSavePaste(event) {
 	game.global.universe = save.global.universe
 	game.global.lastSpireCleared = save.global.lastSpireCleared
 	
-	document.getElementsByName("low")[0].checked = "checked"
-	document.getElementsByName("high")[0].checked = "checked"
+	document.getElementsByName("low")[game.global.universe-1].checked = "checked"
+	document.getElementsByName("high")[game.global.universe-1].checked = "checked"
 	
 	// set seeds
 	game.global.heirloomBoneSeed = save.global.heirloomBoneSeed;
@@ -140,25 +140,18 @@ function searchForHeirloom(event){
 	}
 }
 
-function modToString(mod) {
-    modString = mod[1] + "% ";
-    for (i in mod[0]) {
-        if (i == 0) {
-            modString += mod[0][i].toUpperCase();
-        } else {
-            if (mod[0][i] == mod[0][i].toUpperCase()) {
-                modString += " ";
-            }
-            modString += mod[0][i];
-        }
-    }
-    return modString;
-}
-
 function heirloomToString(heirloom){
 	let text = ""
 	text += heirloom.name + "\n"
-	for (let i = 0; i < heirloom.mods.length; i++) text += modToString(heirloom.mods[i]) + "\n"	
+	
+	let modName = "";
+	let modPercent = "";
+	
+	for (let i = 0; i < heirloom.mods.length; i++){
+		modName = game.heirlooms[heirloom.type][heirloom.mods[i][0]].name
+		modPercent = heirloom.mods[i][1]
+		text += modPercent + "% " + modName + "\n"	
+	}		
 	return text
 }
 
@@ -206,8 +199,6 @@ function buildModsDropChecks() {
 		eligible.push(item);
 	}
 	
-	
-	console.log(eligible);
 	
 	var ele = document.getElementById("modifiers")
 	ele.innerHTML = ""
