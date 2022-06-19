@@ -5,6 +5,7 @@ var highUniverse = 1;
 var maxSpire = 0;
 var badMods = [];
 var filter = false;
+var manualRarity = 0;
 
 // only thing from spire assault that gets used
 var autoBattle = {oneTimers: {Nullicious: {owned: false}}}
@@ -19,9 +20,9 @@ document.getElementById("saveInput").addEventListener("paste", (event) => {
 });
 
 document.getElementById("highZoneText").addEventListener("change", (event) => {
-	buildModsDropChecks();	
+	buildModsDropChecks();
+	updateManualRarities();
 });
-
 
 document.getElementById("heirloomSearchButton").addEventListener("click", (event) => {
 	searchForHeirloom(event);
@@ -42,6 +43,10 @@ document.getElementById("highNextFiveMaxButton").addEventListener("click", (even
 
 document.getElementById("filter").addEventListener("change", (event) => {
 	showFilter(event);	
+});
+
+document.getElementById("searchRarityManualInput").addEventListener("change", (event) => {
+	showRarityInput(event);
 });
 
 
@@ -90,10 +95,17 @@ function setLowUniverse(ele){
 function setHighUniverse(ele){
         highUniverse = parseInt(ele.value)
 		buildModsDropChecks()
+		updateManualRarities()
 }
 
 function setMaxSpire(value){
 	maxSpire = value;
+}
+
+function setManualRarity(value)
+{
+	manualRarity = value;
+	buildModsDropChecks();
 }
 
 function searchForHeirloom(event){
@@ -105,6 +117,11 @@ function searchForHeirloom(event){
 	game.global.universe = highUniverse;
 	let rarity = getHeirloomRarityRanges(high).length-1;
 	
+	if (!!document.getElementById("searchRarityManualInput").checked)
+	{
+		rarity = manualRarity;
+	}
+
 	let heirloom;
 	
 	game.global.heirloomSeed = save.global.heirloomSeed;
@@ -175,7 +192,32 @@ function showFilter(event) {
 		document.getElementById("dropdowns").removeAttribute("hidden")
 	else
 		document.getElementById("dropdowns").setAttribute("hidden", true)
-	
+}
+
+function showRarityInput(event)
+{
+	show = !!document.getElementById("searchRarityManualInput").checked;
+	if (show)
+		document.getElementById("manualRarity").removeAttribute("hidden");
+	else
+		document.getElementById("manualRarity").setAttribute("hidden", true);
+};
+
+function updateManualRarities()
+{
+	const high = parseInt(document.getElementById("highZoneText").value);
+	ele = document.getElementsByName("high");
+    highUniverse = ele[0].checked ? 1 : 2;
+	game.global.universe = highUniverse;
+	game.global.heirloomSeed = save.global.heirloomSeed;
+
+	const ranges = getHeirloomRarityRanges(high);
+	document.getElementById("manualRarityChoice").innerHTML = 
+		game.heirlooms.rarityNames
+			.map((r, index) => (ranges.length <= index || ranges[index] == -1) ? '' : '<option value="' + index + '">' + r + '</option>').join('\n').trim();
+
+	document.getElementById("manualRarityChoice").value = ranges.length - 1;
+	manualRarity = ranges.length - 1;
 }
 
 function buildModsDropChecks() {
@@ -187,7 +229,12 @@ function buildModsDropChecks() {
 	game.global.universe = highUniverse;
 	game.global.heirloomSeed = save.global.heirloomSeed;
 	let rarity = getHeirloomRarityRanges(high).length-1;
-	
+
+	if (!!document.getElementById("searchRarityManualInput").checked)
+	{
+		rarity = manualRarity;
+	}
+
 	//get list of eligible mods
 	var type = document.getElementById("type").value
 	var eligible = [];
@@ -234,6 +281,11 @@ function nextFiveMaxHeirlooms(event){
 	game.global.heirloomSeed = save.global.heirloomSeed;
 	let rarity = getHeirloomRarityRanges(high).length-1;
 	
+	if (!!document.getElementById("searchRarityManualInput").checked)
+	{
+		rarity = manualRarity;
+	}
+
 	if (game.global.universe == 1){
 		for (let j = game.global.lastSpireCleared + 1; 100*(j+1) < high && j <= maxSpire; j++) spireHeirloom(j)
 	}

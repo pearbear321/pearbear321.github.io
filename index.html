@@ -37,9 +37,7 @@
 	<button type="button" id="highNextFiveButton" title="Show the next 5 heirlooms at this zone.">
 							Next 5 Here</button>
 	<button type="button" id="highNextFiveMaxButton" title="Show the next 5 maximum rarity heirlooms at this zone.">
-							Next 5 Max Rarity Here</button><br><br>
-	<button type="button" id="heirloomSearchButton" title="Search for highest rarity heirlooms at max rarity zone after advancing RNG at a lower zone.">
-							Search for heirlooms</button>
+							Next 5 Max/Desired Rarity Here</button><br><br>
 	<input type="checkbox" id="filter">Apply Filter &ensp;
 	<span id="dropdowns" hidden>
 		Type
@@ -50,8 +48,15 @@
 		Must not have these modifiers
 		<span id="modifiers" title="Because empty slots can be used to add modifiers, it makes more sense to think of heirlooms in terms of what modifiers they don't have, rather than the ones they do.">
 		</span>
-
 	</span>
+	<br>
+	<input type="checkbox" id="searchRarityManualInput" title="If selected, this will set the Desired Rarity to >= the selected Rarity">Manual Desired Rarity Selection</input>
+	<span id="manualRarity" hidden>
+		<select name="rarity" id="manualRarityChoice" title="Rarity" onchange="setManualRarity(this.value);"></select>
+	</span>
+	<br>
+	<button type="button" id="heirloomSearchButton" title="Search for highest rarity heirlooms at max rarity zone after advancing RNG at a lower zone.">
+							Search for heirlooms</button>
 </span>
 	<div class="flex-container"> 
 		<script>
