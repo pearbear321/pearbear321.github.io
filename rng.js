@@ -33,12 +33,16 @@ document.getElementById("lowNextFiveButton").addEventListener("click", (event) =
 	nextFiveHeirlooms(event,0);
 });
 
+document.getElementById("lowNextFiveMaxButton").addEventListener("click", (event) => {
+	nextFiveMaxHeirlooms(event, false);
+});
+
 document.getElementById("highNextFiveButton").addEventListener("click", (event) => {
 	nextFiveHeirlooms(event,1);
 });
 	
 document.getElementById("highNextFiveMaxButton").addEventListener("click", (event) => {
-	nextFiveMaxHeirlooms(event);	
+	nextFiveMaxHeirlooms(event, true);
 });
 
 document.getElementById("filter").addEventListener("change", (event) => {
@@ -59,6 +63,9 @@ function onSavePaste(event) {
 	
 	document.getElementsByName("low")[game.global.universe-1].checked = "checked"
 	document.getElementsByName("high")[game.global.universe-1].checked = "checked"
+
+	lowUniverse = game.global.universe;
+	highUniverse = game.global.universe;
 	
 	// set seeds
 	game.global.heirloomBoneSeed = save.global.heirloomBoneSeed;
@@ -152,9 +159,12 @@ function searchForHeirloom(event){
 		game.global.heirloomSeed = tempSeed
 		game.global.universe = lowUniverse;
 		createHeirloom(low)
+
 		tempSeed = game.global.heirloomSeed
 		j = tempj
 	}
+
+	cleanupStoredHeirlooms();
 }
 
 function heirloomToString(heirloom){
@@ -177,7 +187,7 @@ function findNextHeirloom(zone, rarity, limit){
 	for (let i = 1; i < limit; i++) {
 		createHeirloom(zone);
 		heirloom = game.global.heirloomsExtra[game.global.heirloomsExtra.length-1];
-		if (heirloom.rarity == rarity)
+		if (heirloom.rarity >= rarity)
 			if (applyFilter(heirloom)) {
 				heirloom.ahead = i;
 				return heirloom;	
@@ -205,13 +215,11 @@ function showRarityInput(event)
 
 function updateManualRarities()
 {
-	const high = parseInt(document.getElementById("highZoneText").value);
-	ele = document.getElementsByName("high");
-    highUniverse = ele[0].checked ? 1 : 2;
+	const zone = parseInt(document.getElementById("highZoneText").value);
 	game.global.universe = highUniverse;
 	game.global.heirloomSeed = save.global.heirloomSeed;
 
-	const ranges = getHeirloomRarityRanges(high);
+	const ranges = getHeirloomRarityRanges(zone);
 	document.getElementById("manualRarityChoice").innerHTML = 
 		game.heirlooms.rarityNames
 			.map((r, index) => (ranges.length <= index || ranges[index] == -1) ? '' : '<option value="' + index + '">' + r + '</option>').join('\n').trim();
@@ -223,12 +231,10 @@ function updateManualRarities()
 function buildModsDropChecks() {
 	badMods = [];
 	//find max rarity 
-	let high = parseInt(document.getElementById("highZoneText").value);
-	ele = document.getElementsByName("high");
-    highUniverse = ele[0].checked ? 1 : 2;
+	const zone = parseInt(document.getElementById("highZoneText").value);
 	game.global.universe = highUniverse;
 	game.global.heirloomSeed = save.global.heirloomSeed;
-	let rarity = getHeirloomRarityRanges(high).length-1;
+	let rarity = getHeirloomRarityRanges(zone).length-1;
 
 	if (!!document.getElementById("searchRarityManualInput").checked)
 	{
@@ -244,8 +250,7 @@ function buildModsDropChecks() {
 		if (typeof heirloom.filter !== 'undefined' && !heirloom.filter()) continue;
 		if (heirloom.steps && heirloom.steps[rarity] === -1) continue;
 		eligible.push(item);
-	}
-	
+	}	
 	
 	var ele = document.getElementById("modifiers")
 	ele.innerHTML = ""
@@ -272,14 +277,24 @@ function applyFilter(heirloom) {
 		return true
 }
 
-function nextFiveMaxHeirlooms(event){
+function nextFiveMaxHeirlooms(event, high)
+{
+	let zone = high ? parseInt(document.getElementById("highZoneText").value) : parseInt(document.getElementById("lowZoneText").value);
 	
-	let high = parseInt(document.getElementById("highZoneText").value);
-	var ele = document.getElementsByName("high");
-        highUniverse = ele[0].checked ? 1 : 2;
-	game.global.universe = highUniverse;
+	var universe = (high ? document.getElementsByName("high") : document.getElementsByName("low"))[0].checked ? 1 : 2;
+	if (high)
+	{
+		highUniverse = universe;
+		game.global.universe = universe;
+	}
+	else
+	{
+		lowUniverse = universe;
+		game.global.universe = universe;
+	}
+
 	game.global.heirloomSeed = save.global.heirloomSeed;
-	let rarity = getHeirloomRarityRanges(high).length-1;
+	let rarity = getHeirloomRarityRanges(zone).length-1;
 	
 	if (!!document.getElementById("searchRarityManualInput").checked)
 	{
@@ -287,42 +302,41 @@ function nextFiveMaxHeirlooms(event){
 	}
 
 	if (game.global.universe == 1){
-		for (let j = game.global.lastSpireCleared + 1; 100*(j+1) < high && j <= maxSpire; j++) spireHeirloom(j)
+		for (let j = game.global.lastSpireCleared + 1; 100*(j+1) < zone && j <= maxSpire; j++) spireHeirloom(j)
 	}
 	
 	
 	let count = 0;
-	
-	for (let i = 0; i < 5; i++) {
-		heirloom = findNextHeirloom(high, rarity, 100);
-		
-		if (heirloom){
+	let failed = false;
+	for (let i = 0; i < 5; i++)
+	{
+		if (failed)
+		{
+			document.getElementById('heirloom'+i).innerText = "";
+			continue;
+		}
+
+		heirloom = findNextHeirloom(zone, rarity, 100);
+		if (heirloom)
+		{
 			count += heirloom.ahead
 			document.getElementById('heirloom'+i).innerText = count + " ahead" + "\n" + heirloomToString(heirloom);
 		}
-		else {
+		else
+		{
 			document.getElementById('heirloom'+i).innerText = "Could not find max rarity heirloom looking 100 ahead";
-			return;
+			failed = true;
 		}
 	}
 	
+	cleanupStoredHeirlooms();
 }
 
-function nextFiveHeirlooms(event, high){
+function nextFiveHeirlooms(event, high)
+{	
+	const zone = high ? parseInt(document.getElementById("highZoneText").value) : parseInt(document.getElementById("lowZoneText").value);
 	
-	let zone = high ? parseInt(document.getElementById("highZoneText").value) : parseInt(document.getElementById("lowZoneText").value);
-	if(high){
-		var ele = document.getElementsByName("high");
-        	highUniverse = ele[0].checked ? 1 : 2;
-	}
-	else{
-		var ele = document.getElementsByName("low");
-        	lowUniverse = ele[0].checked ? 1 : 2;
-	}
-	
-	let heirloom;
 	game.global.heirloomSeed = save.global.heirloomSeed;
-	
 	game.global.universe = high ? highUniverse : lowUniverse
 	
 	if (game.global.universe == 1){
@@ -330,12 +344,20 @@ function nextFiveHeirlooms(event, high){
 	}
 	
 	let count = 0;
+	let heirloom;
 	
 	for (let i = 0; i < 5; i++) {
 		createHeirloom(zone);
 		heirloom = game.global.heirloomsExtra[game.global.heirloomsExtra.length-1];
 		document.getElementById('heirloom'+i).innerText = (i + 1) + " ahead" + "\n" + heirloomToString(heirloom);
 	}
+
+	cleanupStoredHeirlooms();
+}
+
+function cleanupStoredHeirlooms()
+{
+	game.global.heirloomsExtra = [];
 }
 
 function spireHeirloom(spire){
